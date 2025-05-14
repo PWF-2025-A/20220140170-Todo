@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Todo>
  */
+
+use App\Models\Category;
+
 class TodoFactory extends Factory
 {
     /**
@@ -19,8 +22,9 @@ class TodoFactory extends Factory
         return [
             'user_id' => rand(1, 100),
             'title' => ucwords(fake()->sentence()),
-            'is_done' => rand(0, 1),
-            //
+            'is_done' => rand(0, 1), // lebih tepat boolean
+            'category_id' => Category::inRandomOrder()->first()->id ??
+            Category::factory(), 
         ];
     }
 }
