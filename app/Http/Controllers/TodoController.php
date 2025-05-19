@@ -12,12 +12,15 @@ class TodoController extends Controller
 {
     public function index()
     {
-        // Menampilkan todo berdasarkan user yang sedang login
-        $todos = Todo::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
+        $todos = Todo::with('category') 
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         // Menghitung jumlah todo yang telah selesai
-        $todosCompleted = Todo::where('user_id', Auth::id())->where('is_complete', true)->count();
-
+         $todosCompleted = Todo::where('user_id', auth()->user()->id)
+        ->where('is_complete', true)
+        ->count();
         return view('todo.index', compact('todos', 'todosCompleted'));
     }
 
@@ -36,7 +39,7 @@ class TodoController extends Controller
             'category_id' => $request->category_id, // Menyimpan kategori
         ]);
 
-        return redirect()->route('todo.index')->with('success', 'Todo created successfully.');
+        return redirect()->route('todo.index');
     }
 
     public function create()
@@ -48,8 +51,9 @@ class TodoController extends Controller
 
     public function edit(Todo $todo)
     {
-        if (auth()->user()->id == $todo->user_id) {
-            return view('todo.edit', compact('todo'));
+        if (auth()->id() == $todo->user_id) {
+            $categories = Category::all();
+            return view('todo.edit', compact('todo', 'categories'));
         } else {
             return redirect()->route('todo.index')->with('danger', 'You are not authorized to edit this todo!');
         }
