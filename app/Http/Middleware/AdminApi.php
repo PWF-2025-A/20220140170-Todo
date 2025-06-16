@@ -15,6 +15,13 @@ class AdminApi
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $user = auth()->guard('api')->user();
+        if (!$user || !$user->is_admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
         return $next($request);
     }
 }

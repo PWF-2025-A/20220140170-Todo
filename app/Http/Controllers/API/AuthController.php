@@ -20,13 +20,6 @@ class AuthController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
-        // Cek jika email atau password kosong (sebenarnya sudah ditangani oleh validator, tapi disiapkan untuk validasi manual juga)
-        if (empty($data['email']) || empty($data['password'])) {
-            return response()->json([
-                'status_code' => 400,
-                'message' => 'Email dan password harus diisi',
-            ], 400);
-        }
 
         try {
             // Attempt login menggunakan guard 'api'
@@ -41,14 +34,14 @@ class AuthController extends Controller
 
             return response()->json([
                 'status_code' => 200,
-                'message' => 'Login berhasil',
-                'data' => [
+                 'message'     => 'Login berhasil',
+                'data'        => [
                     'user' => [
                         'id' => $user->id,
                         'name' => $user->name,
                         'email' => $user->email,
                         'is_admin' => $user->is_admin,
-                        'token' => $token,
+                        'token'  => $token,
                     ]
                 ]
             ], 200);
@@ -56,8 +49,8 @@ class AuthController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'status_code' => 500,
-                'message' => 'Terjadi kesalahan',
-                'error' => $e->getMessage()
+                 'message'     => 'Terjadi kesalahan saat login',
+                'error'       => $e->getMessage()
             ], 500);
         }
     }
@@ -65,12 +58,51 @@ class AuthController extends Controller
     /**
      * Logout user yang sedang login.
      */
+
+
+      #[Response(
+        response: 200,
+        description: 'Logout berhasil',
+        content: [
+            'application/json' => [
+                'example' => [
+                    'status_code' => 200,
+                    'message' => 'Logout berhasil. Token telah dihapus.'
+                ]
+            ]
+        ]
+    )]
+    #[Response(
+        response: 500,
+        description: 'Gagal logout',
+        content: [
+            'application/json' => [
+                'example' => [
+                    'status_code' => 500,
+                    'message' => 'Gagal logout, terjadi kesalahan.'
+                ]
+            ]
+        ]
+    )]
+
+
     public function logout()
     {
-        Auth::guard('api')->logout();
+         try {
+            Auth::guard('api')->logout();
 
-        return response()->json([
-            'message' => 'Logout berhasil',
-        ], 200);
+            return response()->json([
+                'status_code' => 200,
+                'message'     => 'Logout berhasil. Token telah dihapus.',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message'     => 'Gagal logout, terjadi kesalahan.',
+                'error'       => $e->getMessage()
+            ], 500);
+        }
+
+        
     }
 }
